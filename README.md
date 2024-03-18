@@ -37,16 +37,17 @@ jobs:
 
 ## Inputs
 
-| Input          | Default               | Description                                                                                                                                             |
-| -------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `slug`         | **Required**          | The slug of the plugin to deploy.                                                                                                                       |
-| `svn-username` | **Required**          | The username to use for the SVN repository.                                                                                                             |
-| `svn-password` | **Required**          | The password to use for the SVN repository.                                                                                                             |
-| `dry-run`      | false                 | Whether to run the deployment in dry-run mode.                                                                                                          |
-| `mode`         | all                   | The mode to use for the deployment. `all` for assets, readme, and plugin. `assets` for assets only. `readme` for readme only. `plugin` for plugin only. |
-| `version`      | version in README.txt | The version of the plugin to deploy.                                                                                                                    |
-| `build-dir`    | `$GITHUB_WORKSPACE`   | The directory containing the built plugin to deploy.                                                                                                    |
-| `assets-dir`   | `assets`              | The directory containing the assets to deploy.                                                                                                          |
+| Input          | Default               | Description                                                                                |
+| -------------- | --------------------- | ------------------------------------------------------------------------------------------ |
+| `slug`         | **Required**          | The slug of the plugin to deploy.                                                          |
+| `svn-username` | **Required**          | The username to use for the SVN repository.                                                |
+| `svn-password` | **Required**          | The password to use for the SVN repository.                                                |
+| `dry-run`      | false                 | Whether to run the deployment in dry-run mode.                                             |
+| `mode`         | all                   | The mode to use for the deployment. Available mods are `all`, `assets`, `readme`, `plugin` |
+| `version`      | version in README.txt | The version of the plugin to deploy.                                                       |
+| `build-dir`    | `GITHUB_WORKSPACE`    | The directory containing the built plugin to deploy.                                       |
+| `assets-dir`   | `assets`              | The directory containing the assets to deploy.                                             |
+| `readme-file`  | `README.txt`          | The file containing the readme to deploy.                                                  |
 
 ## Outputs
 

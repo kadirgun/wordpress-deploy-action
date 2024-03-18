@@ -20,9 +20,7 @@ let getInputMock: jest.SpiedFunction<typeof core.getInput>
 let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
 let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
 
-let svnCheckoutMock = jest
-  .spyOn(svn, 'checkout')
-  .mockReturnValue(Promise.resolve([]))
+let svnCheckoutMock = jest.spyOn(svn, 'checkout').mockResolvedValue([])
 
 describe('action', () => {
   beforeEach(() => {
@@ -36,6 +34,8 @@ describe('action', () => {
   })
 
   it('checkout runs when slug exists', async () => {
+    process.env.GITHUB_WORKSPACE = '/tmp/workspace'
+
     getInputMock.mockImplementation(name => {
       switch (name) {
         case 'slug':
