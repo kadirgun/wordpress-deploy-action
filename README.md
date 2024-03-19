@@ -1,7 +1,7 @@
 # WordPress Deploy Action
 
-[![GitHub Super-Linter](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/ci.yml/badge.svg)
+[![GitHub Super-Linter](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/linter.yml/badge.svg)](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/linter.yml)
+[![CI](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/ci.yml/badge.svg)](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/ci.yml)
 [![Check dist/](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/check-dist.yml)
 [![CodeQL](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
