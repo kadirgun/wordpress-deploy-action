@@ -4,7 +4,7 @@ import path from 'path'
 import rsync from './rsync'
 import { copyFileSync } from 'fs'
 import * as glob from '@actions/glob'
-import { mimeTypes, removeMissingFiles, svnColorize } from './utils'
+import { mimeTypes, removeMissingFiles } from './utils'
 
 const options = {
   slug: '',
@@ -85,8 +85,6 @@ async function run(): Promise<void> {
     status = await svn.status({
       path: options.svnDir
     })
-
-    core.info(svnColorize(status))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
