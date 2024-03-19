@@ -40,6 +40,9 @@ inputs:
     description: The readme file name in the build directory
     required: false
     default: readme.txt
+  main-file:
+    description: The main PHP file name in the build directory (required when version is not provided)
+    required: false
 
 outputs:
   revision:

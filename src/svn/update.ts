@@ -6,6 +6,7 @@ export type UpdateParams = {
   ignoreExternals?: boolean
   changelist?: string
   path?: string
+  notOnlyStatus?: boolean
 }
 
 async function update(params: UpdateParams): Promise<string[]> {
@@ -31,9 +32,9 @@ async function update(params: UpdateParams): Promise<string[]> {
     args.push(params.path)
   }
 
-  return exec(args, {
+  return await exec(args, {
     silent: true,
-    onlyStatus: true
+    onlyStatus: !params.notOnlyStatus
   })
 }
 

@@ -17,11 +17,17 @@ dependencies:
   colorette:
     specifier: ^2.0.20
     version: 2.0.20
+  lodash:
+    specifier: ^4.17.21
+    version: 4.17.21
 
 devDependencies:
   '@types/jest':
     specifier: ^29.5.12
     version: 29.5.12
+  '@types/lodash':
+    specifier: ^4.17.0
+    version: 4.17.0
   '@types/node':
     specifier: ^20.11.25
     version: 20.11.28
@@ -974,6 +980,11 @@ packages:
   /@types/json5@0.0.29:
     resolution:
       { integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ== }
+    dev: true
+
+  /@types/lodash@4.17.0:
+    resolution:
+      { integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA== }
     dev: true
 
   /@types/node@20.11.28:
@@ -3942,7 +3953,6 @@ packages:
   /lodash@4.17.21:
     resolution:
       { integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg== }
-    dev: true
 
   /loglevel-colored-level-prefix@1.0.0:
     resolution:

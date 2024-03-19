@@ -4,7 +4,7 @@ import path from 'path'
 import rsync from './rsync'
 import { copyFileSync } from 'fs'
 import * as glob from '@actions/glob'
-import { mimeTypes, removeMissingFiles } from './utils'
+import { getRevisionNumber, mimeTypes, readVersionFromMainFile, removeMissingFiles } from './utils'
 
 const options = {
   slug: '',
@@ -80,12 +80,20 @@ async function run(): Promise<void> {
       await removeMissingFiles(missingFiles)
     }
 
+    const updateOutput = await svn.update({
+      path: options.svnDir,
+      notOnlyStatus: true
+    })
+    const revision = getRevisionNumber(updateOutput)
+    core.setOutput('revision', revision.toString())
+
     core.info('Final status of SVN')
 
-    await svn.status({
+    const changes = await svn.status({
       path: options.svnDir,
       print: true
     })
+    core.setOutput('changes', changes)
 
     const dryRun = core.getBooleanInput('dry-run')
     if (dryRun) {
@@ -109,7 +117,7 @@ async function prepareAssets(): Promise<void> {
     setDepth: 'infinity'
   })
 
-  options.assetsDir = core.getInput('assets-dir', { required: true })
+  options.assetsDir = core.getInput('assets-dir')
   options.assetsDir = path.join(options.workspace, options.assetsDir)
 
   await rsync(`${options.assetsDir}/`, `${options.svnDir}/assets/`, {
@@ -151,18 +159,38 @@ async function prepareReadme(): Promise<void> {
 }
 
 async function preparePlugin(): Promise<void> {
-  const trunk = path.join(options.svnDir, 'trunk')
+  const trunkDir = path.join(options.svnDir, 'trunk')
 
   await svn.update({
-    path: trunk,
+    path: trunkDir,
     setDepth: 'infinity'
   })
 
-  await rsync(options.buildDir, trunk, {
+  await rsync(`${options.buildDir}/`, `${trunkDir}/`, {
     delete: true,
     checksum: true,
     recursive: true,
     deleteExcluded: true
+  })
+
+  let version = core.getInput('version')
+  if (!version) {
+    const mainFile = core.getInput('main-file', { required: true })
+    const mainFilePath = path.join(trunkDir, mainFile)
+    version = readVersionFromMainFile(mainFilePath)
+  }
+
+  if (version.startsWith('v')) {
+    version = version.slice(1)
+  }
+
+  core.setOutput('version', version)
+
+  const tagDir = path.join(options.svnDir, 'tags', version)
+
+  await svn.copy({
+    source: trunkDir,
+    destination: tagDir
   })
 }
 

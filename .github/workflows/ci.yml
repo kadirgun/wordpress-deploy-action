@@ -60,9 +60,12 @@ jobs:
 
       - name: Test Local Action
         id: test-action
-        uses: ./
+        uses: kadirgun/wordpress-deploy-action@main
         with:
-          milliseconds: 2000
+          slug: 'akismet'
+          dry-run: true
+          svn-password: test
+          svn-username: test
 
       - name: Print Output
         id: output

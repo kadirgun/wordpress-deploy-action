@@ -145,4 +145,17 @@ describe('svn', () => {
       }
     )
   })
+
+  it('copy', async () => {
+    execMock.mockResolvedValueOnce(['A /some/path'])
+
+    await svn.copy({
+      source: '/path/to/sorce',
+      destination: '/path/to/destination'
+    })
+
+    expect(execMock).toHaveBeenCalledWith(['copy', '/path/to/sorce', '/path/to/destination'], {
+      silent: true
+    })
+  })
 })
