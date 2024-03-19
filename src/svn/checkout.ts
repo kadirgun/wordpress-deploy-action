@@ -27,7 +27,11 @@ export default async (url: string, params: CheckoutParams) => {
     args.push(params.path)
   }
 
-  const output = await getExecOutput('svn', args, { silent: true })
+  const output = await getExecOutput('svn', args)
+
+  if (output.exitCode !== 0) {
+    throw new Error(output.stderr)
+  }
 
   const statusRegex = /^[A-Z]\s+(.*)$/
 

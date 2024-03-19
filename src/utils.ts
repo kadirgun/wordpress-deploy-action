@@ -22,3 +22,11 @@ export const svnColorize = (lines: string[]): string => {
     })
     .join('\n')
 }
+
+export const mimeTypes = {
+  png: 'image/png',
+  gif: 'image/gif',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  svg: 'image/svg+xml'
+}
