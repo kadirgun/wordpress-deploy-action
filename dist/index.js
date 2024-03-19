@@ -28502,7 +28502,6 @@ async function run() {
         status = await svn_1.default.status({
             path: options.svnDir
         });
-        core.info((0, utils_1.svnColorize)(status));
     }
     catch (error) {
         if (error instanceof Error)
@@ -28600,12 +28599,15 @@ exports["default"] = rsync;
 /***/ }),
 
 /***/ 8320:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(7775);
+const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function add(path, params) {
     const args = ['add'];
     if (params.depth) {
@@ -28615,13 +28617,9 @@ async function add(path, params) {
         args.push('--force');
     }
     args.push(path);
-    const output = await (0, exec_1.getExecOutput)('svn', args);
-    if (output.exitCode !== 0) {
-        throw new Error(output.stderr);
-    }
-    const statusRegex = /^[A-Z]\s+(.*)$/;
-    return output.stdout.split('\n').filter(line => {
-        return statusRegex.test(line);
+    return (0, exec_1.default)(args, {
+        silent: true,
+        onlyStatus: true
     });
 }
 exports["default"] = add;
@@ -28630,12 +28628,15 @@ exports["default"] = add;
 /***/ }),
 
 /***/ 7761:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(7775);
+const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function checkout(url, params) {
     const args = ['checkout'];
     if (params.depth) {
@@ -28645,16 +28646,76 @@ async function checkout(url, params) {
     if (params.path) {
         args.push(params.path);
     }
-    const output = await (0, exec_1.getExecOutput)('svn', args);
-    if (output.exitCode !== 0) {
-        throw new Error(output.stderr);
-    }
-    const statusRegex = /^[A-Z]\s+(.*)$/;
-    return output.stdout.split('\n').filter(line => {
-        return statusRegex.test(line);
+    return (0, exec_1.default)(args, {
+        silent: true,
+        onlyStatus: true
     });
 }
 exports["default"] = checkout;
+
+
+/***/ }),
+
+/***/ 2661:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const exec_1 = __nccwpck_require__(7775);
+const core = __importStar(__nccwpck_require__(9093));
+const utils_1 = __nccwpck_require__(442);
+async function exec(args, options = {}) {
+    const output = [];
+    const statusCode = await (0, exec_1.exec)('svn', args, {
+        silent: true,
+        listeners: {
+            stdline: (line) => {
+                if (options.onlyStatus && !utils_1.statusRegex.test(line)) {
+                    return;
+                }
+                output.push(line);
+                if (options.colorize) {
+                    line = (0, utils_1.svnColorize)(line);
+                }
+                if (!options.silent) {
+                    core.info(line);
+                }
+            },
+            errline: (line) => {
+                output.push(line);
+            }
+        }
+    });
+    if (statusCode !== 0) {
+        throw new Error(output.join('\n'));
+    }
+    return output;
+}
+exports["default"] = exec;
 
 
 /***/ }),
@@ -28680,19 +28741,20 @@ exports["default"] = { add: add_1.default, checkout: checkout_1.default, update:
 /***/ }),
 
 /***/ 5196:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(7775);
+const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function propset(params) {
     const args = ['propset', params.name, params.value, params.path];
-    const output = await (0, exec_1.getExecOutput)('svn', args);
-    if (output.exitCode !== 0) {
-        throw new Error(output.stderr);
-    }
-    return output.stdout;
+    await (0, exec_1.default)(args, {
+        silent: true
+    });
 }
 exports["default"] = propset;
 
@@ -28700,12 +28762,15 @@ exports["default"] = propset;
 /***/ }),
 
 /***/ 3136:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(7775);
+const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function remove(path, params) {
     const args = ['remove'];
     params = params || {};
@@ -28713,13 +28778,9 @@ async function remove(path, params) {
         args.push('--force');
     }
     args.push(path);
-    const output = await (0, exec_1.getExecOutput)('svn', args);
-    if (output.exitCode !== 0) {
-        throw new Error(output.stderr);
-    }
-    const statusRegex = /^[A-Z]\s+(.*)$/;
-    return output.stdout.split('\n').filter(line => {
-        return statusRegex.test(line);
+    return (0, exec_1.default)(args, {
+        silent: true,
+        onlyStatus: true
     });
 }
 exports["default"] = remove;
@@ -28728,25 +28789,24 @@ exports["default"] = remove;
 /***/ }),
 
 /***/ 2362:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(7775);
+const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function status(params) {
     const args = ['status'];
     params = params || {};
     if (params.path) {
         args.push(params.path);
     }
-    const output = await (0, exec_1.getExecOutput)('svn', args);
-    if (output.exitCode !== 0) {
-        throw new Error(output.stderr);
-    }
-    const statusRegex = /^[A-Z]\s+(.*)$/;
-    return output.stdout.split('\n').filter(line => {
-        return statusRegex.test(line);
+    return (0, exec_1.default)(args, {
+        silent: true,
+        onlyStatus: true
     });
 }
 exports["default"] = status;
@@ -28755,12 +28815,15 @@ exports["default"] = status;
 /***/ }),
 
 /***/ 4824:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const exec_1 = __nccwpck_require__(7775);
+const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function update(params) {
     const args = ['update'];
     if (params.setDepth) {
@@ -28778,13 +28841,9 @@ async function update(params) {
     if (params.path) {
         args.push(params.path);
     }
-    const output = await (0, exec_1.getExecOutput)('svn', args);
-    if (output.exitCode !== 0) {
-        throw new Error(output.stderr);
-    }
-    const statusRegex = /^[A-Z]\s+(.*)$/;
-    return output.stdout.split('\n').filter(line => {
-        return statusRegex.test(line);
+    return (0, exec_1.default)(args, {
+        silent: true,
+        onlyStatus: true
     });
 }
 exports["default"] = update;
@@ -28801,28 +28860,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.mimeTypes = exports.removeMissingFiles = exports.svnColorize = void 0;
+exports.mimeTypes = exports.removeMissingFiles = exports.svnColorize = exports.statusRegex = void 0;
 const colorette_1 = __nccwpck_require__(2436);
 const svn_1 = __importDefault(__nccwpck_require__(2586));
-const svnColorize = (lines) => {
-    const statusRegex = /^([A-Z])\s+(.+)/;
+exports.statusRegex = /^(?<status>[A-Z!])\s+(?<file>.*)$/;
+const svnColorize = (text) => {
     const colorMap = {
         A: colorette_1.green,
         M: colorette_1.blue,
         D: colorette_1.red,
         C: colorette_1.yellow
     };
-    return lines
-        .map(line => {
-        const match = line.match(statusRegex);
-        if (match) {
-            const [, status, file] = match;
-            const color = colorMap[status];
-            return color(`${(0, colorette_1.bold)(status)} ${file}`);
-        }
-        return line;
-    })
-        .join('\n');
+    const match = exports.statusRegex.exec(text);
+    if (!match) {
+        return text;
+    }
+    const status = match.groups?.status;
+    if (!status || !colorMap[status]) {
+        return text;
+    }
+    return colorMap[status](text);
 };
 exports.svnColorize = svnColorize;
 const removeMissingFiles = async (files) => {
