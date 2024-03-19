@@ -14,7 +14,7 @@ export type CheckoutParams = {
   path?: string
 }
 
-export default async (url: string, params: CheckoutParams) => {
+async function checkout(url: string, params: CheckoutParams): Promise<string[]> {
   const args = ['checkout']
 
   if (params.depth) {
@@ -39,3 +39,5 @@ export default async (url: string, params: CheckoutParams) => {
     return statusRegex.test(line)
   })
 }
+
+export default checkout

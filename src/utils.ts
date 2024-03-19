@@ -14,7 +14,7 @@ export const svnColorize = (lines: string[]): string => {
     .map(line => {
       const match = line.match(statusRegex)
       if (match) {
-        const [_, status, file] = match
+        const [, status, file] = match
         const color = colorMap[status as keyof typeof colorMap]
         return color(`${bold(status)} ${file}`)
       }
@@ -24,7 +24,7 @@ export const svnColorize = (lines: string[]): string => {
     .join('\n')
 }
 
-export const removeMissingFiles = async (files: string[]) => {
+export const removeMissingFiles = async (files: string[]): Promise<void> => {
   for (const file of files) {
     await svn.remove(file)
   }

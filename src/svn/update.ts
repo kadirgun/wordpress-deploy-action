@@ -8,7 +8,7 @@ export type UpdateParams = {
   path?: string
 }
 
-export default async (params: UpdateParams) => {
+async function update(params: UpdateParams): Promise<string[]> {
   const args = ['update']
 
   if (params.setDepth) {
@@ -43,3 +43,5 @@ export default async (params: UpdateParams) => {
     return statusRegex.test(line)
   })
 }
+
+export default update

@@ -1,11 +1,3 @@
-/**
- * Unit tests for the action's main functionality, src/main.ts
- *
- * These should be run as if the action was called from a workflow.
- * Specifically, the inputs listed in `action.yml` should be set as environment
- * variables following the pattern `INPUT_<INPUT_NAME>`.
- */
-
 import * as core from '@actions/core'
 import main from '../src/main'
 import svn from '../src/svn'
@@ -22,12 +14,9 @@ let rsyncMock: jest.SpiedFunction<typeof rsync.default>
 let globGeneratorMock: jest.SpiedFunction<Globber['globGenerator']>
 
 // Mock the GitHub Actions core library
-let debugMock: jest.SpiedFunction<typeof core.debug>
-let errorMock: jest.SpiedFunction<typeof core.error>
 let infoMock: jest.SpiedFunction<typeof core.info>
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
 let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
-let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
 let svnCheckoutMock: jest.SpiedFunction<typeof svn.checkout>
 let svnUpdateMock: jest.SpiedFunction<typeof svn.update>
 let svnPropsetMock: jest.SpiedFunction<typeof svn.propset>
@@ -39,12 +28,9 @@ describe('action', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    debugMock = jest.spyOn(core, 'debug').mockImplementation()
-    errorMock = jest.spyOn(core, 'error').mockImplementation()
     infoMock = jest.spyOn(core, 'info').mockImplementation()
     getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
     prepareAssetsMock = jest.spyOn(main, 'prepareAssets')
     prepareReadmeMock = jest.spyOn(main, 'prepareReadme')
     preparePluginMock = jest.spyOn(main, 'preparePlugin')
@@ -55,7 +41,6 @@ describe('action', () => {
     svnAddMock = jest.spyOn(svn, 'add').mockResolvedValue(['A /some/path'])
     svnStatusMock = jest.spyOn(svn, 'status').mockResolvedValue(['A /some/path'])
     svnRemoveMock = jest.spyOn(svn, 'remove').mockResolvedValue(['D /some/path'])
-
     svnPropsetMock = jest.spyOn(svn, 'propset').mockResolvedValue('')
 
     rsyncMock = jest.spyOn(rsync, 'default').mockReturnValue(Promise.resolve(''))
@@ -144,6 +129,8 @@ describe('action', () => {
       recursive: true,
       deleteExcluded: true
     })
+
+    expect(globGeneratorMock).toHaveBeenCalled()
 
     expect(svnPropsetMock).toHaveBeenCalledWith({
       name: 'svn:mime-type',

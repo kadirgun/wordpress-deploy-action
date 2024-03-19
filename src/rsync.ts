@@ -7,11 +7,7 @@ export type RsyncParams = {
   deleteExcluded?: boolean
 }
 
-export default async (
-  source: string,
-  destination: string,
-  params: RsyncParams
-) => {
+async function rsync(source: string, destination: string, params: RsyncParams): Promise<string> {
   const args: string[] = []
 
   if (params.recursive) {
@@ -40,3 +36,5 @@ export default async (
 
   return output.stdout
 }
+
+export default rsync

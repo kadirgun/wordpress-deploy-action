@@ -4,7 +4,7 @@ export type StatusParams = {
   path?: string
 }
 
-export default async (params?: StatusParams) => {
+async function status(params?: StatusParams): Promise<string[]> {
   const args = ['status']
 
   params = params || {}
@@ -25,3 +25,5 @@ export default async (params?: StatusParams) => {
     return statusRegex.test(line)
   })
 }
+
+export default status

@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import svn from '@/svn'
+import svn from './svn'
 import path from 'path'
 import rsync from './rsync'
 import { copyFileSync } from 'fs'
@@ -35,7 +35,7 @@ async function run(): Promise<void> {
 
     core.info(`Checking out ${options.slug}`)
 
-    const checkout = await svn.checkout(`https://plugins.svn.wordpress.org/${options.slug}/`, {
+    await svn.checkout(`https://plugins.svn.wordpress.org/${options.slug}/`, {
       depth: 'immediates',
       path: options.svnDir
     })
@@ -92,10 +92,6 @@ async function run(): Promise<void> {
   }
 }
 
-/**
- * The main function for the action.
- * @returns {Promise<void>}
- */
 async function prepareAssets(): Promise<void> {
   await svn.update({
     path: `${options.svnDir}/assets`,
@@ -131,7 +127,7 @@ async function prepareAssets(): Promise<void> {
   }
 }
 
-async function prepareReadme() {
+async function prepareReadme(): Promise<void> {
   const readme = core.getInput('readme-file', { required: true })
   const trunk = path.join(options.svnDir, 'trunk')
 
@@ -143,7 +139,7 @@ async function prepareReadme() {
   copyFileSync(path.join(options.buildDir, readme), path.join(trunk, 'readme.txt'))
 }
 
-async function preparePlugin() {
+async function preparePlugin(): Promise<void> {
   const trunk = path.join(options.svnDir, 'trunk')
 
   await svn.update({

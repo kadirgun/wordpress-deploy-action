@@ -1,6 +1,5 @@
 name: WordPress Deploy Action
-description:
-  Deploy your WordPress plugin to the WordPress.org Plugin Repository.
+description: Deploy your WordPress plugin to the WordPress.org Plugin Repository.
 author: Kadir Gün
 
 branding:
@@ -22,9 +21,7 @@ inputs:
     required: false
     default: false
   mode:
-    description:
-      The mode to use for the deployment. Available mods are `all`, `assets`,
-      `readme`, `plugin`
+    description: The mode to use for the deployment. Available mods are `all`, `assets`, `readme`, `plugin`
     required: false
     default: all
   version:

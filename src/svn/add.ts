@@ -4,7 +4,7 @@ export type AddParams = {
   depth?: 'empty' | 'files' | 'immediates' | 'infinity'
   force?: boolean
 }
-export default async (path: string, params: AddParams) => {
+async function add(path: string, params: AddParams): Promise<string[]> {
   const args = ['add']
 
   if (params.depth) {
@@ -29,3 +29,5 @@ export default async (path: string, params: AddParams) => {
     return statusRegex.test(line)
   })
 }
+
+export default add

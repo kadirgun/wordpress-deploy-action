@@ -20,14 +20,7 @@ describe('rsync', () => {
 
     expect(execMock).toHaveBeenCalledWith(
       'rsync',
-      [
-        '-r',
-        '--checksum',
-        '--delete',
-        '--delete-excluded',
-        '/path/to/source',
-        '/path/to/destination'
-      ],
+      ['-r', '--checksum', '--delete', '--delete-excluded', '/path/to/source', '/path/to/destination'],
       expect.anything()
     )
   })

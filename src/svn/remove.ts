@@ -4,7 +4,7 @@ export type RemoveParams = {
   force?: boolean
 }
 
-export default async (path: string, params?: RemoveParams) => {
+async function remove(path: string, params?: RemoveParams): Promise<string[]> {
   const args = ['remove']
 
   params = params || {}
@@ -27,3 +27,5 @@ export default async (path: string, params?: RemoveParams) => {
     return statusRegex.test(line)
   })
 }
+
+export default remove
