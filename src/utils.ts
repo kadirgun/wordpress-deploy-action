@@ -1,4 +1,5 @@
 import { blue, red, yellow, green, bold } from 'colorette'
+import svn from './svn'
 
 export const svnColorize = (lines: string[]): string => {
   const statusRegex = /^([A-Z])\s+(.+)/
@@ -21,6 +22,12 @@ export const svnColorize = (lines: string[]): string => {
       return line
     })
     .join('\n')
+}
+
+export const removeMissingFiles = async (files: string[]) => {
+  for (const file of files) {
+    await svn.remove(file)
+  }
 }
 
 export const mimeTypes = {

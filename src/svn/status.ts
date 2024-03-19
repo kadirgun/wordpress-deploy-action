@@ -4,8 +4,10 @@ export type StatusParams = {
   path?: string
 }
 
-export default async (params: StatusParams) => {
+export default async (params?: StatusParams) => {
   const args = ['status']
+
+  params = params || {}
 
   if (params.path) {
     args.push(params.path)

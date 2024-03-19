@@ -4,7 +4,7 @@ import path from 'path'
 import rsync from './rsync'
 import { copyFileSync } from 'fs'
 import * as glob from '@actions/glob'
-import { mimeTypes } from './utils'
+import { mimeTypes, removeMissingFiles, svnColorize } from './utils'
 
 const options = {
   slug: '',
@@ -35,19 +35,13 @@ async function run(): Promise<void> {
 
     core.info(`Checking out ${options.slug}`)
 
-    const checkout = await svn.checkout(
-      `https://plugins.svn.wordpress.org/${options.slug}/`,
-      {
-        depth: 'immediates',
-        path: options.svnDir
-      }
-    )
-
-    core.info(`Checked out ${options.slug} ${checkout.length} files`)
+    const checkout = await svn.checkout(`https://plugins.svn.wordpress.org/${options.slug}/`, {
+      depth: 'immediates',
+      path: options.svnDir
+    })
 
     options.mode = core.getInput('mode')
-
-    core.info(`Preparing ${options.mode}`)
+    core.info(`Preparing for ${options.mode} mode`)
 
     if (options.mode === 'assets') {
       await main.prepareAssets()
@@ -61,6 +55,38 @@ async function run(): Promise<void> {
     } else {
       throw new Error(`Invalid mode: ${options.mode}`)
     }
+
+    let status = await svn.status({
+      path: options.svnDir
+    })
+
+    if (status.length === 0) {
+      core.info('No changes to commit')
+      return
+    }
+
+    core.info('Adding new files to SVN')
+    svn.add(options.svnDir, {
+      force: true
+    })
+
+    status = await svn.status({
+      path: options.svnDir
+    })
+
+    const missingFiles = status.filter(file => file.startsWith('!')).map(file => file.slice(1).trim())
+    if (missingFiles.length > 0) {
+      core.info('Removing missing files from SVN')
+      await removeMissingFiles(missingFiles)
+    }
+
+    core.info('Final status of SVN')
+
+    status = await svn.status({
+      path: options.svnDir
+    })
+
+    core.info(svnColorize(status))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
@@ -114,10 +140,7 @@ async function prepareReadme() {
     setDepth: 'infinity'
   })
 
-  copyFileSync(
-    path.join(options.buildDir, readme),
-    path.join(trunk, 'readme.txt')
-  )
+  copyFileSync(path.join(options.buildDir, readme), path.join(trunk, 'readme.txt'))
 }
 
 async function preparePlugin() {

@@ -3,6 +3,7 @@ import checkout, { CheckoutParams } from './checkout'
 import update, { UpdateParams } from './update'
 import status, { StatusParams } from './status'
 import propset, { PropSetParams } from './propset'
+import remove, { RemoveParams } from './remove'
 
 export type {
   AddParams,
@@ -11,4 +12,4 @@ export type {
   StatusParams,
   PropSetParams
 }
-export default { add, checkout, update, status, propset }
+export default { add, checkout, update, status, propset, remove }
