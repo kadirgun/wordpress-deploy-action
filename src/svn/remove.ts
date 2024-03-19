@@ -4,10 +4,8 @@ export type RemoveParams = {
   force?: boolean
 }
 
-async function remove(path: string, params?: RemoveParams): Promise<string[]> {
+async function remove(path: string, params: RemoveParams = {}): Promise<string[]> {
   const args = ['remove']
-
-  params = params || {}
 
   if (params.force) {
     args.push('--force')

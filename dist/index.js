@@ -28499,8 +28499,19 @@ async function run() {
             await (0, utils_1.removeMissingFiles)(missingFiles);
         }
         core.info('Final status of SVN');
-        status = await svn_1.default.status({
-            path: options.svnDir
+        await svn_1.default.status({
+            path: options.svnDir,
+            print: true
+        });
+        const dryRun = core.getBooleanInput('dry-run');
+        if (dryRun) {
+            core.info('Dry run enabled, skipping commit');
+            return;
+        }
+        core.info('Committing to SVN');
+        await svn_1.default.commit({
+            path: options.svnDir,
+            message: core.getInput('commit-message')
         });
     }
     catch (error) {
@@ -28656,6 +28667,40 @@ exports["default"] = checkout;
 
 /***/ }),
 
+/***/ 185:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const exec_1 = __importDefault(__nccwpck_require__(2661));
+async function commit(params) {
+    const args = ['commit', '--non-interactive'];
+    if (params.noAuthCache) {
+        args.push('--no-auth-cache');
+    }
+    if (params.username) {
+        args.push('--username', params.username);
+    }
+    if (params.password) {
+        args.push('--password', params.password);
+    }
+    if (params.message) {
+        args.push('-m', params.message);
+    }
+    if (params.path) {
+        args.push(params.path);
+    }
+    return (0, exec_1.default)(args, { silent: true });
+}
+exports["default"] = commit;
+
+
+/***/ }),
+
 /***/ 2661:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -28735,7 +28780,8 @@ const update_1 = __importDefault(__nccwpck_require__(4824));
 const status_1 = __importDefault(__nccwpck_require__(2362));
 const propset_1 = __importDefault(__nccwpck_require__(5196));
 const remove_1 = __importDefault(__nccwpck_require__(3136));
-exports["default"] = { add: add_1.default, checkout: checkout_1.default, update: update_1.default, status: status_1.default, propset: propset_1.default, remove: remove_1.default };
+const commit_1 = __importDefault(__nccwpck_require__(185));
+exports["default"] = { add: add_1.default, checkout: checkout_1.default, update: update_1.default, status: status_1.default, propset: propset_1.default, remove: remove_1.default, commit: commit_1.default };
 
 
 /***/ }),
@@ -28771,9 +28817,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const exec_1 = __importDefault(__nccwpck_require__(2661));
-async function remove(path, params) {
+async function remove(path, params = {}) {
     const args = ['remove'];
-    params = params || {};
     if (params.force) {
         args.push('--force');
     }
@@ -28805,7 +28850,8 @@ async function status(params) {
         args.push(params.path);
     }
     return (0, exec_1.default)(args, {
-        silent: true,
+        silent: !params.print,
+        colorize: !!params.print,
         onlyStatus: true
     });
 }

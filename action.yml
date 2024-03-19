@@ -19,6 +19,7 @@ inputs:
   dry-run:
     description: Run the deployment in dry-run mode
     required: false
+    type: boolean
     default: false
   mode:
     description: The mode to use for the deployment. Available mods are `all`, `assets`, `readme`, `plugin`

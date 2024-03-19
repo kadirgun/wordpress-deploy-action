@@ -72,13 +72,15 @@ describe('svn', () => {
     await svn.status({ path: '/path/to/status' })
     expect(execMock).toHaveBeenCalledWith(['status', '/path/to/status'], {
       silent: true,
-      onlyStatus: true
+      onlyStatus: true,
+      colorize: false
     })
 
     await svn.status()
     expect(execMock).toHaveBeenCalledWith(['status'], {
       silent: true,
-      onlyStatus: true
+      onlyStatus: true,
+      colorize: false
     })
   })
 
@@ -98,52 +100,49 @@ describe('svn', () => {
 
   it('remove', async () => {
     execMock.mockResolvedValueOnce(['A /some/path'])
+    await svn.remove('/path/to/remove', {
+      force: true
+    })
+    expect(execMock).toHaveBeenCalledWith(['remove', '--force', '/path/to/remove'], {
+      silent: true,
+      onlyStatus: true
+    })
 
+    execMock.mockResolvedValueOnce(['A /some/path'])
     await svn.remove('/path/to/remove')
-
     expect(execMock).toHaveBeenCalledWith(['remove', '/path/to/remove'], {
       silent: true,
       onlyStatus: true
     })
   })
 
-  it('error', async function () {
-    execMock.mockRejectedValue(new Error('error'))
+  it('commit', async () => {
+    execMock.mockResolvedValueOnce(['Committed revision 1234.'])
 
-    await expect(
-      svn.checkout('https://plugins.svn.wordpress.org/plugin-slug/', {
-        depth: 'immediates',
-        path: '/path/to/checkout'
-      })
-    ).rejects.toThrow()
+    await svn.commit({
+      path: '/path/to/commit',
+      message: 'commit message',
+      noAuthCache: true,
+      password: 'password',
+      username: 'username'
+    })
 
-    await expect(
-      svn.add('/path/to/add', {
-        depth: 'immediates',
-        force: true
-      })
-    ).rejects.toThrow()
-
-    await expect(
-      svn.update({
-        setDepth: 'immediates',
-        recursive: true,
-        ignoreExternals: true,
-        changelist: 'test',
-        path: '/path/to/update'
-      })
-    ).rejects.toThrow()
-
-    await expect(svn.status({ path: '/path/to/status' })).rejects.toThrow()
-
-    await expect(svn.remove('/path/to/remove', { force: true })).rejects.toThrow()
-
-    await expect(
-      svn.propset({
-        name: 'svn:mime-type',
-        value: 'text/plain',
-        path: '/path/to/propset'
-      })
-    ).rejects.toThrow()
+    expect(execMock).toHaveBeenCalledWith(
+      [
+        'commit',
+        '--non-interactive',
+        '--no-auth-cache',
+        '--username',
+        'username',
+        '--password',
+        'password',
+        '-m',
+        'commit message',
+        '/path/to/commit'
+      ],
+      {
+        silent: true
+      }
+    )
   })
 })

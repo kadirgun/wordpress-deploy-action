@@ -2,6 +2,7 @@ import exec from './exec'
 
 export type StatusParams = {
   path?: string
+  print?: boolean
 }
 
 async function status(params?: StatusParams): Promise<string[]> {
@@ -14,7 +15,8 @@ async function status(params?: StatusParams): Promise<string[]> {
   }
 
   return exec(args, {
-    silent: true,
+    silent: !params.print,
+    colorize: !!params.print,
     onlyStatus: true
   })
 }

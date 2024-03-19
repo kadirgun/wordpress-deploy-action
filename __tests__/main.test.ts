@@ -16,6 +16,7 @@ let globGeneratorMock: jest.SpiedFunction<Globber['globGenerator']>
 // Mock the GitHub Actions core library
 let infoMock: jest.SpiedFunction<typeof core.info>
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
+let getBooleanInputMock: jest.SpiedFunction<typeof core.getBooleanInput>
 let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
 let svnCheckoutMock: jest.SpiedFunction<typeof svn.checkout>
 let svnUpdateMock: jest.SpiedFunction<typeof svn.update>
@@ -23,6 +24,7 @@ let svnPropsetMock: jest.SpiedFunction<typeof svn.propset>
 let svnAddMock: jest.SpiedFunction<typeof svn.add>
 let svnStatusMock: jest.SpiedFunction<typeof svn.status>
 let svnRemoveMock: jest.SpiedFunction<typeof svn.remove>
+let svnCommitMock: jest.SpiedFunction<typeof svn.commit>
 
 describe('action', () => {
   beforeEach(() => {
@@ -30,6 +32,8 @@ describe('action', () => {
 
     infoMock = jest.spyOn(core, 'info').mockImplementation()
     getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
+    getBooleanInputMock = jest.spyOn(core, 'getBooleanInput').mockReturnValue(false)
+
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
     prepareAssetsMock = jest.spyOn(main, 'prepareAssets')
     prepareReadmeMock = jest.spyOn(main, 'prepareReadme')
@@ -42,6 +46,7 @@ describe('action', () => {
     svnStatusMock = jest.spyOn(svn, 'status').mockResolvedValue(['A /some/path'])
     svnRemoveMock = jest.spyOn(svn, 'remove').mockResolvedValue(['D /some/path'])
     svnPropsetMock = jest.spyOn(svn, 'propset').mockResolvedValue()
+    svnCommitMock = jest.spyOn(svn, 'commit').mockResolvedValue(['Committed revision 123.'])
 
     rsyncMock = jest.spyOn(rsync, 'default').mockReturnValue(Promise.resolve(''))
 
@@ -237,14 +242,33 @@ describe('action', () => {
 
     expect(svnRemoveMock).toHaveBeenCalledWith('/some/missing/path')
 
-    svnStatusMock.mockResolvedValue([])
+    expect(svnCommitMock).toHaveBeenCalled()
 
-    await main.run()
+    // do not commit when dry-run is true
+    {
+      svnCommitMock.mockClear()
+      getBooleanInputMock.mockReturnValue(true)
 
-    expect(svnStatusMock).toHaveBeenCalledWith({
-      path: '/tmp/plugin-slug-svn'
-    })
+      await main.run()
 
-    expect(infoMock).toHaveBeenCalledWith('No changes to commit')
+      expect(svnStatusMock).toHaveBeenCalledWith({
+        path: '/tmp/plugin-slug-svn',
+        print: true
+      })
+      expect(svnCommitMock).not.toHaveBeenCalled()
+    }
+
+    // do not commit when no changes
+    {
+      svnStatusMock.mockResolvedValue([])
+
+      await main.run()
+
+      expect(svnStatusMock).toHaveBeenCalledWith({
+        path: '/tmp/plugin-slug-svn'
+      })
+
+      expect(infoMock).toHaveBeenCalledWith('No changes to commit')
+    }
   })
 })

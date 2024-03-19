@@ -82,8 +82,21 @@ async function run(): Promise<void> {
 
     core.info('Final status of SVN')
 
-    status = await svn.status({
-      path: options.svnDir
+    await svn.status({
+      path: options.svnDir,
+      print: true
+    })
+
+    const dryRun = core.getBooleanInput('dry-run')
+    if (dryRun) {
+      core.info('Dry run enabled, skipping commit')
+      return
+    }
+
+    core.info('Committing to SVN')
+    await svn.commit({
+      path: options.svnDir,
+      message: core.getInput('commit-message')
     })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
