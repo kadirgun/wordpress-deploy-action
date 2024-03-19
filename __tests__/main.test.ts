@@ -41,7 +41,7 @@ describe('action', () => {
     svnAddMock = jest.spyOn(svn, 'add').mockResolvedValue(['A /some/path'])
     svnStatusMock = jest.spyOn(svn, 'status').mockResolvedValue(['A /some/path'])
     svnRemoveMock = jest.spyOn(svn, 'remove').mockResolvedValue(['D /some/path'])
-    svnPropsetMock = jest.spyOn(svn, 'propset').mockResolvedValue('')
+    svnPropsetMock = jest.spyOn(svn, 'propset').mockResolvedValue()
 
     rsyncMock = jest.spyOn(rsync, 'default').mockReturnValue(Promise.resolve(''))
 
