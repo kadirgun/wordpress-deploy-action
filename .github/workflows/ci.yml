@@ -66,6 +66,8 @@ jobs:
           dry-run: true
           svn-password: test
           svn-username: test
+          build-dir: wordpress
+          assets-dir: wordpress/.wordpress.org
 
       - name: Print Output
         id: output
