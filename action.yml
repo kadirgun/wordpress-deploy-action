@@ -3,6 +3,10 @@ description:
   Deploy your WordPress plugin to the WordPress.org Plugin Repository.
 author: Kadir Gün
 
+branding:
+  icon: upload
+  color: blue
+
 inputs:
   slug:
     description: Plugin slug (e.g. my-awesome-plugin)
