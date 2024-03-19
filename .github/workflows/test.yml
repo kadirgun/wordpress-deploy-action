@@ -1,0 +1,19 @@
+name: Test action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Test action
+        uses: kadirgun/wordpress-deploy-action@main
+        with:
+          slug: test-plugin
+          dry-run: true
+          svn-username: test
+          svn-password: test
