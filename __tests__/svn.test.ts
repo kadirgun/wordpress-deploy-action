@@ -27,23 +27,19 @@ describe('svn', () => {
 
   it('add', async () => {
     execMock.mockResolvedValueOnce({
-      stdout: 'A /some/path',
+      stdout: 'A /some/path\nA /some/other/path',
       stderr: '',
       exitCode: 0
     })
 
-    await svn.add('/path/to/add', {
-      depth: 'immediates',
-      force: true
-    })
+    await expect(
+      svn.add('/path/to/add', {
+        depth: 'immediates',
+        force: true
+      })
+    ).resolves.toEqual(['A /some/path', 'A /some/other/path'])
 
-    expect(execMock).toHaveBeenCalledWith('svn', [
-      'add',
-      '--depth',
-      'immediates',
-      '--force',
-      '/path/to/add'
-    ])
+    expect(execMock).toHaveBeenCalledWith('svn', ['add', '--depth', 'immediates', '--force', '/path/to/add'])
   })
 
   it('update', async () => {
@@ -81,8 +77,10 @@ describe('svn', () => {
     })
 
     await svn.status({ path: '/path/to/status' })
-
     expect(execMock).toHaveBeenCalledWith('svn', ['status', '/path/to/status'])
+
+    await svn.status()
+    expect(execMock).toHaveBeenCalledWith('svn', ['status'])
   })
 
   it('propset', async () => {
@@ -98,12 +96,19 @@ describe('svn', () => {
       path: '/path/to/propset'
     })
 
-    expect(execMock).toHaveBeenCalledWith('svn', [
-      'propset',
-      'svn:mime-type',
-      'text/plain',
-      '/path/to/propset'
-    ])
+    expect(execMock).toHaveBeenCalledWith('svn', ['propset', 'svn:mime-type', 'text/plain', '/path/to/propset'])
+  })
+
+  it('remove', async () => {
+    execMock.mockResolvedValueOnce({
+      stdout: 'D /some/path',
+      stderr: '',
+      exitCode: 0
+    })
+
+    await svn.remove('/path/to/remove')
+
+    expect(execMock).toHaveBeenCalledWith('svn', ['remove', '/path/to/remove'])
   })
 
   it('error', async function () {
@@ -138,6 +143,8 @@ describe('svn', () => {
     ).rejects.toThrow()
 
     await expect(svn.status({ path: '/path/to/status' })).rejects.toThrow()
+
+    await expect(svn.remove('/path/to/remove', { force: true })).rejects.toThrow()
 
     await expect(
       svn.propset({
