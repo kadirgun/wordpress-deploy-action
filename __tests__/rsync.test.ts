@@ -31,4 +31,21 @@ describe('rsync', () => {
       expect.anything()
     )
   })
+
+  it('rsync fail', async function () {
+    execMock.mockResolvedValueOnce({
+      stdout: '',
+      stderr: 'rsync error',
+      exitCode: 1
+    })
+
+    await expect(
+      rsync('/path/to/source', '/path/to/destination', {
+        recursive: true,
+        checksum: true,
+        delete: true,
+        deleteExcluded: true
+      })
+    ).rejects.toThrow()
+  })
 })
