@@ -1,4 +1,4 @@
-import { getExecOutput } from '@actions/exec'
+import exec from './exec'
 
 export type RemoveParams = {
   force?: boolean
@@ -15,16 +15,9 @@ async function remove(path: string, params?: RemoveParams): Promise<string[]> {
 
   args.push(path)
 
-  const output = await getExecOutput('svn', args)
-
-  if (output.exitCode !== 0) {
-    throw new Error(output.stderr)
-  }
-
-  const statusRegex = /^[A-Z]\s+(.*)$/
-
-  return output.stdout.split('\n').filter(line => {
-    return statusRegex.test(line)
+  return exec(args, {
+    silent: true,
+    onlyStatus: true
   })
 }
 

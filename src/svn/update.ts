@@ -1,4 +1,4 @@
-import { getExecOutput } from '@actions/exec'
+import exec from './exec'
 
 export type UpdateParams = {
   setDepth?: 'empty' | 'files' | 'immediates' | 'infinity'
@@ -31,16 +31,9 @@ async function update(params: UpdateParams): Promise<string[]> {
     args.push(params.path)
   }
 
-  const output = await getExecOutput('svn', args)
-
-  if (output.exitCode !== 0) {
-    throw new Error(output.stderr)
-  }
-
-  const statusRegex = /^[A-Z]\s+(.*)$/
-
-  return output.stdout.split('\n').filter(line => {
-    return statusRegex.test(line)
+  return exec(args, {
+    silent: true,
+    onlyStatus: true
   })
 }
 

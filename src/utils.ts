@@ -1,27 +1,29 @@
-import { blue, red, yellow, green, bold } from 'colorette'
+import { blue, red, yellow, green } from 'colorette'
 import svn from './svn'
 
-export const svnColorize = (lines: string[]): string => {
-  const statusRegex = /^([A-Z])\s+(.+)/
-  const colorMap = {
+export const statusRegex = /^(?<status>[A-Z!])\s+(?<file>.*)$/
+
+export const svnColorize = (text: string): string => {
+  const colorMap: Record<string, typeof green> = {
     A: green,
     M: blue,
     D: red,
     C: yellow
   }
 
-  return lines
-    .map(line => {
-      const match = line.match(statusRegex)
-      if (match) {
-        const [, status, file] = match
-        const color = colorMap[status as keyof typeof colorMap]
-        return color(`${bold(status)} ${file}`)
-      }
+  const match = statusRegex.exec(text)
 
-      return line
-    })
-    .join('\n')
+  if (!match) {
+    return text
+  }
+
+  const status = match.groups?.status
+
+  if (!status || !colorMap[status]) {
+    return text
+  }
+
+  return colorMap[status](text)
 }
 
 export const removeMissingFiles = async (files: string[]): Promise<void> => {

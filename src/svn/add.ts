@@ -1,4 +1,4 @@
-import { getExecOutput } from '@actions/exec'
+import exec from './exec'
 
 export type AddParams = {
   depth?: 'empty' | 'files' | 'immediates' | 'infinity'
@@ -17,16 +17,9 @@ async function add(path: string, params: AddParams): Promise<string[]> {
 
   args.push(path)
 
-  const output = await getExecOutput('svn', args)
-
-  if (output.exitCode !== 0) {
-    throw new Error(output.stderr)
-  }
-
-  const statusRegex = /^[A-Z]\s+(.*)$/
-
-  return output.stdout.split('\n').filter(line => {
-    return statusRegex.test(line)
+  return exec(args, {
+    silent: true,
+    onlyStatus: true
   })
 }
 
