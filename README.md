@@ -6,8 +6,7 @@
 [![CodeQL](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-This action deploys a WordPress plugin to the WordPress plugin repository using
-the SVN command line.
+This action deploys a WordPress plugin to the WordPress plugin repository using the SVN command line.
 
 ## Usage
 
@@ -37,17 +36,17 @@ jobs:
 
 ## Inputs
 
-| Input          | Default                  | Description                                                                                |
-| -------------- | ------------------------ | ------------------------------------------------------------------------------------------ |
-| `slug`         | **Required**             | The slug of the plugin to deploy.                                                          |
-| `svn-username` | **Required**             | The username to use for the SVN repository.                                                |
-| `svn-password` | **Required**             | The password to use for the SVN repository.                                                |
-| `dry-run`      | false                    | Whether to run the deployment in dry-run mode.                                             |
-| `mode`         | all                      | The mode to use for the deployment. Available mods are `all`, `assets`, `readme`, `plugin` |
-| `version`      | version in main PHP file | The version of the plugin to deploy.                                                       |
-| `build-dir`    | `GITHUB_WORKSPACE`       | The directory containing the built plugin to deploy.                                       |
-| `assets-dir`   | `.wordpress.org`         | The directory containing the assets to deploy.                                             |
-| `readme-file`  | `README.txt`             | The readme file name in the build directory.                                               |
+| <div style="width:100px">Input</div> | Default                  | Description                                                                               |
+| ------------------------------------ | ------------------------ | ----------------------------------------------------------------------------------------- |
+| `slug`                               | _Required_               | The slug of the plugin to deploy.                                                         |
+| `svn-username`                       | _Required_               | The username to use for the SVN repository.                                               |
+| `svn-password`                       | _Required_               | The password to use for the SVN repository.                                               |
+| `dry-run`                            | false                    | Whether to run the deployment in dry-run mode.                                            |
+| `mode`                               | all                      | The mode to use for the deployment.Available mods are `all`, `assets`, `readme`, `plugin` |
+| `version`                            | version in main PHP file | The version of the plugin to deploy.                                                      |
+| `build-dir`                          | `GITHUB_WORKSPACE`       | The directory containing the built plugin to deploy.                                      |
+| `assets-dir`                         | `.wordpress.org`         | The directory containing the assets to deploy.                                            |
+| `readme-file`                        | `README.txt`             | The readme file name in the build directory.                                              |
 
 ## Outputs
 
