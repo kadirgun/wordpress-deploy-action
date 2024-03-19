@@ -6,7 +6,8 @@
 [![CodeQL](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/kadirgun/wordpress-deploy-action/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-This action deploys a WordPress plugin to the WordPress plugin repository using the SVN command line.
+This action deploys a WordPress plugin to the WordPress plugin repository using
+the SVN command-line.
 
 ## Usage
 
@@ -46,7 +47,7 @@ jobs:
 | `version`                            | version in main PHP file | The version of the plugin to deploy.                                                      |
 | `build-dir`                          | `GITHUB_WORKSPACE`       | The directory containing the built plugin to deploy.                                      |
 | `assets-dir`                         | `.wordpress.org`         | The directory containing the assets to deploy.                                            |
-| `readme-file`                        | `README.txt`             | The readme file name in the build directory.                                              |
+| `readme-file`                        | `README.txt`             | The readme filename in the build directory.                                               |
 
 ## Outputs
 

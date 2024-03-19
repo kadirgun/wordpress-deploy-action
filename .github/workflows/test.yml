@@ -3,6 +3,8 @@ name: Test Deploy Action
 on:
   workflow_dispatch:
 
+permissions: write-all
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
