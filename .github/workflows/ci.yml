@@ -34,8 +34,8 @@ jobs:
           cache: pnpm
 
       - name: Install Dependencies
-        id: pnpm-ci
-        run: pnpm ci
+        id: install
+        run: pnpm install
 
       - name: Check Format
         id: pnpm-format-check

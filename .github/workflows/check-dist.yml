@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Dependencies
         id: install
-        run: pnpm ci
+        run: pnpm install
 
       - name: Build dist/ Directory
         id: build

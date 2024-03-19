@@ -39,7 +39,7 @@ jobs:
 
       - name: Install Dependencies
         id: install
-        run: pnpm ci
+        run: pnpm install
 
       - name: Lint Codebase
         id: super-linter
