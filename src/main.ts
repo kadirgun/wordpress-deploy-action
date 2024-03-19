@@ -41,7 +41,7 @@ async function run(): Promise<void> {
     })
 
     options.mode = core.getInput('mode')
-    core.info(`Preparing for ${options.mode} mode`)
+    core.info(`Preparing for mode ${options.mode}`)
 
     if (options.mode === 'assets') {
       await main.prepareAssets()
@@ -120,6 +120,8 @@ async function prepareAssets(): Promise<void> {
   options.assetsDir = core.getInput('assets-dir')
   options.assetsDir = path.join(options.workspace, options.assetsDir)
 
+  core.info(`Copying assets from ${options.assetsDir} to ${options.svnDir}/assets`)
+
   await rsync(`${options.assetsDir}/`, `${options.svnDir}/assets/`, {
     delete: true,
     checksum: true,
@@ -166,6 +168,8 @@ async function preparePlugin(): Promise<void> {
     setDepth: 'infinity'
   })
 
+  core.info(`Copying plugin from ${options.buildDir} to ${trunkDir}`)
+
   await rsync(`${options.buildDir}/`, `${trunkDir}/`, {
     delete: true,
     checksum: true,
@@ -177,6 +181,7 @@ async function preparePlugin(): Promise<void> {
   if (!version) {
     const mainFile = core.getInput('main-file', { required: true })
     const mainFilePath = path.join(trunkDir, mainFile)
+    core.info(`Reading version from ${mainFilePath}`)
     version = readVersionFromMainFile(mainFilePath)
   }
 
@@ -188,6 +193,7 @@ async function preparePlugin(): Promise<void> {
 
   const tagDir = path.join(options.svnDir, 'tags', version)
 
+  core.info(`Creating tag ${tagDir}`)
   await svn.copy({
     source: trunkDir,
     destination: tagDir

@@ -31,7 +31,6 @@ inputs:
   build-dir:
     description: Directory where the built plugin is located
     required: false
-    default: .
   assets-dir:
     description: Directory where the assets are located
     required: false

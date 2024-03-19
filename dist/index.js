@@ -45679,7 +45679,7 @@ async function run() {
             path: options.svnDir
         });
         options.mode = core.getInput('mode');
-        core.info(`Preparing for ${options.mode} mode`);
+        core.info(`Preparing for mode ${options.mode}`);
         if (options.mode === 'assets') {
             await main.prepareAssets();
         }
@@ -45750,6 +45750,7 @@ async function prepareAssets() {
     });
     options.assetsDir = core.getInput('assets-dir');
     options.assetsDir = path_1.default.join(options.workspace, options.assetsDir);
+    core.info(`Copying assets from ${options.assetsDir} to ${options.svnDir}/assets`);
     await (0, rsync_1.default)(`${options.assetsDir}/`, `${options.svnDir}/assets/`, {
         delete: true,
         checksum: true,
@@ -45787,6 +45788,7 @@ async function preparePlugin() {
         path: trunkDir,
         setDepth: 'infinity'
     });
+    core.info(`Copying plugin from ${options.buildDir} to ${trunkDir}`);
     await (0, rsync_1.default)(`${options.buildDir}/`, `${trunkDir}/`, {
         delete: true,
         checksum: true,
@@ -45797,6 +45799,7 @@ async function preparePlugin() {
     if (!version) {
         const mainFile = core.getInput('main-file', { required: true });
         const mainFilePath = path_1.default.join(trunkDir, mainFile);
+        core.info(`Reading version from ${mainFilePath}`);
         version = (0, utils_1.readVersionFromMainFile)(mainFilePath);
     }
     if (version.startsWith('v')) {
@@ -45804,6 +45807,7 @@ async function preparePlugin() {
     }
     core.setOutput('version', version);
     const tagDir = path_1.default.join(options.svnDir, 'tags', version);
+    core.info(`Creating tag ${tagDir}`);
     await svn_1.default.copy({
         source: trunkDir,
         destination: tagDir
