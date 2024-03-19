@@ -3,19 +3,49 @@ description:
   Deploy your WordPress plugin to the WordPress.org Plugin Repository.
 author: Kadir Gün
 
-branding:
-  icon: 'heart'
-  color: 'red'
-
 inputs:
   slug:
     description: Plugin slug (e.g. my-awesome-plugin)
     required: true
+  svn-username:
+    description: Your WordPress.org username
+    required: true
+  svn-password:
+    description: Your WordPress.org password
+    required: true
+  dry-run:
+    description: Run the deployment in dry-run mode
+    required: false
+    default: false
+  mode:
+    description:
+      The mode to use for the deployment. Available mods are `all`, `assets`,
+      `readme`, `plugin`
+    required: false
+    default: all
+  version:
+    description: Plugin version
+    required: false
+  build-dir:
+    description: Directory where the built plugin is located
+    required: false
+    default: .
+  assets-dir:
+    description: Directory where the assets are located
+    required: false
+    default: .wordpress.org
+  readme-file:
+    description: The readme file name in the build directory
+    required: false
+    default: readme.txt
 
-# Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  revision:
+    description: The SVN revision number of the deployment
+  changes:
+    description: The changes made during the deployment
+  version:
+    description: The version of the plugin
 
 runs:
   using: node20
