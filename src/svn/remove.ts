@@ -11,7 +11,7 @@ async function remove(path: string, params: RemoveParams = {}): Promise<string[]
     args.push('--force')
   }
 
-  args.push(path)
+  args.push(`${path}@`)
 
   return exec(args, {
     silent: true,

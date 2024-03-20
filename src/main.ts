@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import svn from './svn'
 import path from 'path'
 import rsync from './rsync'
-import { copyFileSync } from 'fs'
+import { copyFileSync, existsSync } from 'fs'
 import * as glob from '@actions/glob'
 import { getRevisionNumber, mimeTypes, readVersionFromMainFile, removeMissingFiles } from './utils'
 
@@ -22,20 +22,16 @@ const options = {
 async function run(): Promise<void> {
   try {
     options.slug = core.getInput('slug', { required: true })
-    options.svnDir = `/tmp/${options.slug}-svn`
+    options.svnDir = `/tmp/svn/${options.slug}`
 
-    options.workspace = process.env.GITHUB_WORKSPACE || ''
-
-    if (!options.workspace) {
-      throw new Error('GITHUB_WORKSPACE not set')
-    }
+    options.workspace = process.cwd()
 
     options.buildDir = core.getInput('build-dir')
     options.buildDir = path.join(options.workspace, options.buildDir)
 
     core.info(`Checking out ${options.slug}`)
 
-    await svn.checkout(`https://plugins.svn.wordpress.org/${options.slug}/`, {
+    await svn.checkout(`https://plugins.svn.wordpress.org/${options.slug}`, {
       depth: 'immediates',
       path: options.svnDir
     })
@@ -66,7 +62,7 @@ async function run(): Promise<void> {
     }
 
     core.info('Adding new files to SVN')
-    svn.add(options.svnDir, {
+    await svn.add(options.svnDir, {
       force: true
     })
 
@@ -78,6 +74,15 @@ async function run(): Promise<void> {
     if (missingFiles.length > 0) {
       core.info('Removing missing files from SVN')
       await removeMissingFiles(missingFiles)
+    }
+
+    if (options.mode === 'plugin' || options.mode === 'all') {
+      await main.createNewTag()
+    }
+
+    if (options.mode === 'assets' || options.mode === 'all') {
+      core.info('Setting mime type for assets')
+      await setMimeTypes()
     }
 
     const updateOutput = await svn.update({
@@ -102,9 +107,16 @@ async function run(): Promise<void> {
     }
 
     core.info('Committing to SVN')
+
+    const username = core.getInput('svn-username', { required: true })
+    const password = core.getInput('svn-password', { required: true })
+
     await svn.commit({
       path: options.svnDir,
-      message: core.getInput('commit-message')
+      message: `Deploy from kadirgun/wordpress-deploy-action mode ${options.mode}`,
+      noAuthCache: true,
+      username,
+      password
     })
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
@@ -128,9 +140,11 @@ async function prepareAssets(): Promise<void> {
     recursive: true,
     deleteExcluded: true
   })
+}
 
+async function setMimeTypes(): Promise<void> {
   const patterns = Object.keys(mimeTypes)
-    .map(ext => `${options.assetsDir}/**/*.${ext}`)
+    .map(ext => `${options.svnDir}/assets/**/*.${ext}`)
     .join('\n')
 
   const globber = await glob.create(patterns, {
@@ -149,15 +163,15 @@ async function prepareAssets(): Promise<void> {
 }
 
 async function prepareReadme(): Promise<void> {
-  const readme = core.getInput('readme-file', { required: true })
-  const trunk = path.join(options.svnDir, 'trunk')
+  const readme = core.getInput('readme-file')
+  const trunkDir = path.join(options.svnDir, 'trunk')
 
   await svn.update({
-    path: trunk,
+    path: trunkDir,
     setDepth: 'infinity'
   })
 
-  copyFileSync(path.join(options.buildDir, readme), path.join(trunk, 'readme.txt'))
+  copyFileSync(path.join(options.buildDir, readme), path.join(trunkDir, readme))
 }
 
 async function preparePlugin(): Promise<void> {
@@ -176,6 +190,10 @@ async function preparePlugin(): Promise<void> {
     recursive: true,
     deleteExcluded: true
   })
+}
+
+async function createNewTag(): Promise<void> {
+  const trunkDir = path.join(options.svnDir, 'trunk')
 
   let version = core.getInput('version')
   if (!version) {
@@ -193,6 +211,10 @@ async function preparePlugin(): Promise<void> {
 
   const tagDir = path.join(options.svnDir, 'tags', version)
 
+  if (existsSync(tagDir)) {
+    throw new Error(`Tag ${version} already exists`)
+  }
+
   core.info(`Creating tag ${tagDir}`)
   await svn.copy({
     source: trunkDir,
@@ -200,6 +222,6 @@ async function preparePlugin(): Promise<void> {
   })
 }
 
-const main = { run, prepareAssets, prepareReadme, preparePlugin }
+const main = { run, prepareAssets, prepareReadme, preparePlugin, createNewTag, setMimeTypes }
 
 export default main

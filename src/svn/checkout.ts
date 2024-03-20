@@ -24,7 +24,7 @@ async function checkout(url: string, params: CheckoutParams): Promise<string[]> 
   args.push(url)
 
   if (params.path) {
-    args.push(params.path)
+    args.push(`${params.path}`)
   }
 
   return exec(args, {

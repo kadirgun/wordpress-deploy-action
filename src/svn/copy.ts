@@ -6,9 +6,9 @@ export type CopyParams = {
 }
 
 async function copy(params: CopyParams): Promise<string[]> {
-  const args = ['copy', params.source, params.destination]
+  const args = ['copy', `${params.source}`, `${params.destination}`]
 
-  return exec(args, { silent: true })
+  return exec(args, { silent: true, onlyStatus: true })
 }
 
 export default copy

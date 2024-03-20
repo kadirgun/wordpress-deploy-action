@@ -45666,15 +45666,12 @@ const options = {
 async function run() {
     try {
         options.slug = core.getInput('slug', { required: true });
-        options.svnDir = `/tmp/${options.slug}-svn`;
-        options.workspace = process.env.GITHUB_WORKSPACE || '';
-        if (!options.workspace) {
-            throw new Error('GITHUB_WORKSPACE not set');
-        }
+        options.svnDir = `/tmp/svn/${options.slug}`;
+        options.workspace = process.cwd();
         options.buildDir = core.getInput('build-dir');
         options.buildDir = path_1.default.join(options.workspace, options.buildDir);
         core.info(`Checking out ${options.slug}`);
-        await svn_1.default.checkout(`https://plugins.svn.wordpress.org/${options.slug}/`, {
+        await svn_1.default.checkout(`https://plugins.svn.wordpress.org/${options.slug}`, {
             depth: 'immediates',
             path: options.svnDir
         });
@@ -45704,7 +45701,7 @@ async function run() {
             return;
         }
         core.info('Adding new files to SVN');
-        svn_1.default.add(options.svnDir, {
+        await svn_1.default.add(options.svnDir, {
             force: true
         });
         status = await svn_1.default.status({
@@ -45714,6 +45711,13 @@ async function run() {
         if (missingFiles.length > 0) {
             core.info('Removing missing files from SVN');
             await (0, utils_1.removeMissingFiles)(missingFiles);
+        }
+        if (options.mode === 'plugin' || options.mode === 'all') {
+            await main.createNewTag();
+        }
+        if (options.mode === 'assets' || options.mode === 'all') {
+            core.info('Setting mime type for assets');
+            await setMimeTypes();
         }
         const updateOutput = await svn_1.default.update({
             path: options.svnDir,
@@ -45733,9 +45737,14 @@ async function run() {
             return;
         }
         core.info('Committing to SVN');
+        const username = core.getInput('svn-username', { required: true });
+        const password = core.getInput('svn-password', { required: true });
         await svn_1.default.commit({
             path: options.svnDir,
-            message: core.getInput('commit-message')
+            message: `Deploy from kadirgun/wordpress-deploy-action mode ${options.mode}`,
+            noAuthCache: true,
+            username,
+            password
         });
     }
     catch (error) {
@@ -45757,8 +45766,10 @@ async function prepareAssets() {
         recursive: true,
         deleteExcluded: true
     });
+}
+async function setMimeTypes() {
     const patterns = Object.keys(utils_1.mimeTypes)
-        .map(ext => `${options.assetsDir}/**/*.${ext}`)
+        .map(ext => `${options.svnDir}/assets/**/*.${ext}`)
         .join('\n');
     const globber = await glob.create(patterns, {
         matchDirectories: false
@@ -45774,13 +45785,13 @@ async function prepareAssets() {
     }
 }
 async function prepareReadme() {
-    const readme = core.getInput('readme-file', { required: true });
-    const trunk = path_1.default.join(options.svnDir, 'trunk');
+    const readme = core.getInput('readme-file');
+    const trunkDir = path_1.default.join(options.svnDir, 'trunk');
     await svn_1.default.update({
-        path: trunk,
+        path: trunkDir,
         setDepth: 'infinity'
     });
-    (0, fs_1.copyFileSync)(path_1.default.join(options.buildDir, readme), path_1.default.join(trunk, 'readme.txt'));
+    (0, fs_1.copyFileSync)(path_1.default.join(options.buildDir, readme), path_1.default.join(trunkDir, readme));
 }
 async function preparePlugin() {
     const trunkDir = path_1.default.join(options.svnDir, 'trunk');
@@ -45795,6 +45806,9 @@ async function preparePlugin() {
         recursive: true,
         deleteExcluded: true
     });
+}
+async function createNewTag() {
+    const trunkDir = path_1.default.join(options.svnDir, 'trunk');
     let version = core.getInput('version');
     if (!version) {
         const mainFile = core.getInput('main-file', { required: true });
@@ -45807,13 +45821,16 @@ async function preparePlugin() {
     }
     core.setOutput('version', version);
     const tagDir = path_1.default.join(options.svnDir, 'tags', version);
+    if ((0, fs_1.existsSync)(tagDir)) {
+        throw new Error(`Tag ${version} already exists`);
+    }
     core.info(`Creating tag ${tagDir}`);
     await svn_1.default.copy({
         source: trunkDir,
         destination: tagDir
     });
 }
-const main = { run, prepareAssets, prepareReadme, preparePlugin };
+const main = { run, prepareAssets, prepareReadme, preparePlugin, createNewTag, setMimeTypes };
 exports["default"] = main;
 
 
@@ -45862,7 +45879,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const exec_1 = __importDefault(__nccwpck_require__(2661));
-async function add(path, params) {
+async function add(path, params = {}) {
     const args = ['add'];
     if (params.depth) {
         args.push('--depth', params.depth);
@@ -45870,7 +45887,7 @@ async function add(path, params) {
     if (params.force) {
         args.push('--force');
     }
-    args.push(path);
+    args.push(`${path}`);
     return (0, exec_1.default)(args, {
         silent: true,
         onlyStatus: true
@@ -45898,7 +45915,7 @@ async function checkout(url, params) {
     }
     args.push(url);
     if (params.path) {
-        args.push(params.path);
+        args.push(`${params.path}`);
     }
     return (0, exec_1.default)(args, {
         silent: true,
@@ -45932,10 +45949,10 @@ async function commit(params) {
         args.push('--password', params.password);
     }
     if (params.message) {
-        args.push('-m', params.message);
+        args.push('-m', `'${params.message}'`);
     }
     if (params.path) {
-        args.push(params.path);
+        args.push(`${params.path}`);
     }
     return (0, exec_1.default)(args, { silent: true });
 }
@@ -45955,8 +45972,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function copy(params) {
-    const args = ['copy', params.source, params.destination];
-    return (0, exec_1.default)(args, { silent: true });
+    const args = ['copy', `${params.source}`, `${params.destination}`];
+    return (0, exec_1.default)(args, { silent: true, onlyStatus: true });
 }
 exports["default"] = copy;
 
@@ -45999,6 +46016,7 @@ async function exec(args, options = {}) {
     const output = [];
     const statusCode = await (0, exec_1.exec)('svn', args, {
         silent: true,
+        ignoreReturnCode: true,
         listeners: {
             stdline: (line) => {
                 if (options.onlyStatus && !utils_1.statusRegex.test(line)) {
@@ -46018,7 +46036,7 @@ async function exec(args, options = {}) {
         }
     });
     if (statusCode !== 0) {
-        throw new Error(output.join('\n'));
+        throw new Error([['svn', ...args].join(' '), ...output].join('\n'));
     }
     return output;
 }
@@ -46060,8 +46078,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const exec_1 = __importDefault(__nccwpck_require__(2661));
 async function propset(params) {
-    const args = ['propset', params.name, params.value, params.path];
-    await (0, exec_1.default)(args, {
+    const args = ['propset', params.name, params.value, `${params.path}`];
+    return (0, exec_1.default)(args, {
         silent: true
     });
 }
@@ -46085,7 +46103,7 @@ async function remove(path, params = {}) {
     if (params.force) {
         args.push('--force');
     }
-    args.push(path);
+    args.push(`${path}@`);
     return (0, exec_1.default)(args, {
         silent: true,
         onlyStatus: true
@@ -46110,7 +46128,7 @@ async function status(params) {
     const args = ['status'];
     params = params || {};
     if (params.path) {
-        args.push(params.path);
+        args.push(`${params.path}`);
     }
     return (0, exec_1.default)(args, {
         silent: !params.print,
@@ -46148,9 +46166,9 @@ async function update(params) {
         args.push('--changelist', params.changelist);
     }
     if (params.path) {
-        args.push(params.path);
+        args.push(`${params.path}`);
     }
-    return await (0, exec_1.default)(args, {
+    return (0, exec_1.default)(args, {
         silent: true,
         onlyStatus: !params.notOnlyStatus
     });

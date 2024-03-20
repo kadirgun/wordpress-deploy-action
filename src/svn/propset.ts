@@ -6,10 +6,10 @@ export type PropSetParams = {
   path: string
 }
 
-async function propset(params: PropSetParams): Promise<void> {
-  const args = ['propset', params.name, params.value, params.path]
+async function propset(params: PropSetParams): Promise<string[]> {
+  const args = ['propset', params.name, params.value, `${params.path}`]
 
-  await exec(args, {
+  return exec(args, {
     silent: true
   })
 }

@@ -29,10 +29,10 @@ async function update(params: UpdateParams): Promise<string[]> {
   }
 
   if (params.path) {
-    args.push(params.path)
+    args.push(`${params.path}`)
   }
 
-  return await exec(args, {
+  return exec(args, {
     silent: true,
     onlyStatus: !params.notOnlyStatus
   })

@@ -35,6 +35,12 @@ describe('svn', () => {
       silent: true,
       onlyStatus: true
     })
+
+    execMock.mockResolvedValueOnce(['A /some/path'])
+
+    await svn.add('/path/to/add')
+
+    expect(execMock).toHaveBeenCalledWith(['add', '/path/to/add'], expect.anything())
   })
 
   it('update', async () => {
@@ -103,14 +109,14 @@ describe('svn', () => {
     await svn.remove('/path/to/remove', {
       force: true
     })
-    expect(execMock).toHaveBeenCalledWith(['remove', '--force', '/path/to/remove'], {
+    expect(execMock).toHaveBeenCalledWith(['remove', '--force', '/path/to/remove@'], {
       silent: true,
       onlyStatus: true
     })
 
     execMock.mockResolvedValueOnce(['A /some/path'])
     await svn.remove('/path/to/remove')
-    expect(execMock).toHaveBeenCalledWith(['remove', '/path/to/remove'], {
+    expect(execMock).toHaveBeenCalledWith(['remove', '/path/to/remove@'], {
       silent: true,
       onlyStatus: true
     })
@@ -137,7 +143,7 @@ describe('svn', () => {
         '--password',
         'password',
         '-m',
-        'commit message',
+        "'commit message'",
         '/path/to/commit'
       ],
       {
@@ -155,7 +161,8 @@ describe('svn', () => {
     })
 
     expect(execMock).toHaveBeenCalledWith(['copy', '/path/to/sorce', '/path/to/destination'], {
-      silent: true
+      silent: true,
+      onlyStatus: true
     })
   })
 })

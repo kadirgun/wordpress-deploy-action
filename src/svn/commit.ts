@@ -24,11 +24,11 @@ async function commit(params: CommitParams): Promise<string[]> {
   }
 
   if (params.message) {
-    args.push('-m', params.message)
+    args.push('-m', `'${params.message}'`)
   }
 
   if (params.path) {
-    args.push(params.path)
+    args.push(`${params.path}`)
   }
 
   return exec(args, { silent: true })

@@ -11,7 +11,7 @@ async function status(params?: StatusParams): Promise<string[]> {
   params = params || {}
 
   if (params.path) {
-    args.push(params.path)
+    args.push(`${params.path}`)
   }
 
   return exec(args, {

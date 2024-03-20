@@ -13,6 +13,7 @@ async function exec(args: string[], options: SvnExecOptions = {}): Promise<strin
 
   const statusCode = await execute('svn', args, {
     silent: true,
+    ignoreReturnCode: true,
     listeners: {
       stdline: (line: string) => {
         if (options.onlyStatus && !statusRegex.test(line)) {
@@ -36,7 +37,7 @@ async function exec(args: string[], options: SvnExecOptions = {}): Promise<strin
   })
 
   if (statusCode !== 0) {
-    throw new Error(output.join('\n'))
+    throw new Error([['svn', ...args].join(' '), ...output].join('\n'))
   }
 
   return output
