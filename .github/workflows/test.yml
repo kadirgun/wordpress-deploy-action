@@ -2,7 +2,7 @@ name: Test Deploy Action
 
 on:
   workflow_dispatch:
-    # chekov:skip=CKV_GHA_7
+    # chekov:skip=CKV_GHA_7: The workflow is triggered manually
     inputs:
       mode:
         description: Deploy mode

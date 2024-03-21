@@ -48,7 +48,7 @@ jobs:
 | `build-dir`    | The directory containing the built plugin to deploy. |
 | `assets-dir`   | The directory containing the assets to deploy.       |
 | `readme-name`  | The readme filename in the build directory.          |
-| `main-name`    | The main PHP file name in the build directory.       |
+| `main-name`    | The main PHP filename in the build directory.        |
 
 ## Outputs
 
