@@ -68,7 +68,7 @@ jobs:
           svn-username: test
           build-dir: wordpress/build
           assets-dir: wordpress/.wordpress.org
-          main-file: main.php
+          main-name: main.php
 
       - name: Print Output
         id: output

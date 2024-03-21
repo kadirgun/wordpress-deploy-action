@@ -163,13 +163,15 @@ async function setMimeTypes(): Promise<void> {
 }
 
 async function prepareReadme(): Promise<void> {
-  const readme = core.getInput('readme-file')
+  const readme = core.getInput('readme-name')
   const trunkDir = path.join(options.svnDir, 'trunk')
 
   await svn.update({
     path: trunkDir,
     setDepth: 'infinity'
   })
+
+  core.info(`Copying readme from ${options.buildDir} to ${trunkDir}`)
 
   copyFileSync(path.join(options.buildDir, readme), path.join(trunkDir, readme))
 }
@@ -197,7 +199,7 @@ async function createNewTag(): Promise<void> {
 
   let version = core.getInput('version')
   if (!version) {
-    const mainFile = core.getInput('main-file', { required: true })
+    const mainFile = core.getInput('main-name', { required: true })
     const mainFilePath = path.join(trunkDir, mainFile)
     core.info(`Reading version from ${mainFilePath}`)
     version = readVersionFromMainFile(mainFilePath)

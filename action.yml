@@ -35,11 +35,11 @@ inputs:
     description: Directory where the assets are located
     required: false
     default: .wordpress.org
-  readme-file:
+  readme-name:
     description: The readme file name in the build directory
     required: false
     default: README.txt
-  main-file:
+  main-name:
     description: The main PHP file name in the build directory (required when version is not provided)
     required: false
 

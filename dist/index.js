@@ -45785,12 +45785,13 @@ async function setMimeTypes() {
     }
 }
 async function prepareReadme() {
-    const readme = core.getInput('readme-file');
+    const readme = core.getInput('readme-name');
     const trunkDir = path_1.default.join(options.svnDir, 'trunk');
     await svn_1.default.update({
         path: trunkDir,
         setDepth: 'infinity'
     });
+    core.info(`Copying readme from ${options.buildDir} to ${trunkDir}`);
     (0, fs_1.copyFileSync)(path_1.default.join(options.buildDir, readme), path_1.default.join(trunkDir, readme));
 }
 async function preparePlugin() {
@@ -45811,7 +45812,7 @@ async function createNewTag() {
     const trunkDir = path_1.default.join(options.svnDir, 'trunk');
     let version = core.getInput('version');
     if (!version) {
-        const mainFile = core.getInput('main-file', { required: true });
+        const mainFile = core.getInput('main-name', { required: true });
         const mainFilePath = path_1.default.join(trunkDir, mainFile);
         core.info(`Reading version from ${mainFilePath}`);
         version = (0, utils_1.readVersionFromMainFile)(mainFilePath);
@@ -46192,7 +46193,7 @@ const colorette_1 = __nccwpck_require__(2436);
 const svn_1 = __importDefault(__nccwpck_require__(2586));
 const fs_1 = __nccwpck_require__(7147);
 const lodash_1 = __nccwpck_require__(7337);
-exports.statusRegex = /^(?<status>[A-Z!])\s+(?<file>.*)$/;
+exports.statusRegex = /^(?<status>[A-Z!?~])\s+(?<file>.*)$/;
 const svnColorize = (text) => {
     const colorMap = {
         A: colorette_1.green,

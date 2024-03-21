@@ -1,95 +1,186 @@
-import { existsSync, rmSync } from 'fs'
 import main from '../src/main'
 import * as core from '@actions/core'
 import * as exec from '../src/svn/exec'
 import * as rsync from '../src/rsync'
+import fs from 'fs'
 
 jest.mock('@actions/core')
 
 const coreMock = core as jest.Mocked<typeof core>
 const execMock = jest.spyOn(exec, 'default')
 const rsyncMock = jest.spyOn(rsync, 'default')
+const copyFileSync = jest.spyOn(fs, 'copyFileSync')
 
 const options: Record<string, string> = {
   slug: 'hello-dolly',
   mode: 'all',
   'build-dir': 'wordpress/build',
   'assets-dir': 'wordpress/.wordpress.org',
-  'main-file': 'main.php'
+  'main-name': 'main.php',
+  'readme-name': 'README.txt'
 }
 
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip('deploy', () => {
+describe('deploy', () => {
   afterAll(() => {
-    rmSync('/tmp/svn/hello-dolly', { recursive: true, force: true })
+    fs.rmSync(`/tmp/svn/${options.slug}`, { recursive: true, force: true })
   })
 
   beforeAll(() => {
-    rmSync('/tmp/svn/hello-dolly', { recursive: true, force: true })
+    fs.rmSync(`/tmp/svn/${options.slug}`, { recursive: true, force: true })
   })
 
-  it('real', async () => {
-    coreMock.getInput.mockImplementation((name: string) => options[name] || '')
-    const workspace = process.cwd()
+  const workspace = process.cwd()
 
-    await main.run()
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip(
+    'all',
+    async () => {
+      options.mode = 'all'
+      coreMock.getInput.mockImplementation((name: string) => options[name] || '')
+      await main.run()
 
-    expect(coreMock.setFailed).toHaveBeenCalledWith(expect.stringContaining('svn commit'))
+      expect(coreMock.setFailed).toHaveBeenCalledWith(expect.stringContaining('svn commit'))
 
-    // svn checkout --depth immediates https://plugins.svn.wordpress.org/hello-dolly /tmp/svn/hello-dolly
-    expect(execMock).toHaveBeenCalledWith(
-      ['checkout', '--depth', 'immediates', 'https://plugins.svn.wordpress.org/hello-dolly', '/tmp/svn/hello-dolly'],
-      expect.anything()
-    )
+      // svn checkout --depth immediates https://plugins.svn.wordpress.org/hello-dolly /tmp/svn/hello-dolly
+      expect(execMock).toHaveBeenCalledWith(
+        [
+          'checkout',
+          '--depth',
+          'immediates',
+          `https://plugins.svn.wordpress.org/${options.slug}`,
+          `/tmp/svn/${options.slug}`
+        ],
+        expect.anything()
+      )
 
-    // prepareAssets
-    {
-      expect(existsSync('/tmp/svn/hello-dolly/assets')).toBe(true)
+      // prepareAssets
+      {
+        expect(fs.existsSync(`/tmp/svn/${options.slug}/assets`)).toBe(true)
+
+        // svn update --set-depth infinity /tmp/svn/hello-dolly/assets
+        expect(execMock).toHaveBeenCalledWith(
+          ['update', '--set-depth', 'infinity', `/tmp/svn/${options.slug}/assets`],
+          expect.anything()
+        )
+
+        // rsync -r --checksum --delete --delete-excluded ./wordpress/.wordpress.org/ /tmp/svn/hello-dolly/assets/
+        expect(rsyncMock).toHaveBeenCalledWith(
+          `${workspace}/wordpress/.wordpress.org/`,
+          `/tmp/svn/${options.slug}/assets/`,
+          expect.anything()
+        )
+      }
+
+      // preparePlugin
+      {
+        expect(fs.existsSync(`/tmp/svn/${options.slug}/trunk`)).toBe(true)
+
+        expect(execMock).toHaveBeenCalledWith(
+          ['update', '--set-depth', 'infinity', `/tmp/svn/${options.slug}/trunk`],
+          expect.anything()
+        )
+
+        expect(rsyncMock).toHaveBeenCalledWith(
+          `${workspace}/wordpress/build/`,
+          '/tmp/svn/${options.slug}/trunk/',
+          expect.anything()
+        )
+      }
+
+      expect(execMock).toHaveBeenCalledWith(['add', '--force', `/tmp/svn/${options.slug}`], expect.anything())
+
+      expect(execMock).toHaveBeenCalledWith(['status', `/tmp/svn/${options.slug}`], expect.anything())
+
+      // createNewTag
+      {
+        expect(execMock).toHaveBeenCalledWith(
+          ['copy', `/tmp/svn/${options.slug}/trunk`, `/tmp/svn/${options.slug}/tags/0.0.0`],
+          expect.anything()
+        )
+
+        expect(core.setOutput).toHaveBeenCalledWith('version', '0.0.0')
+      }
+
+      expect(execMock).toHaveBeenCalledWith(
+        expect.arrayContaining(['commit', `/tmp/svn/${options.slug}`]),
+        expect.anything()
+      )
+    },
+    20 * 1000
+  )
+
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip(
+    'assets',
+    async () => {
+      options.mode = 'assets'
+      coreMock.getInput.mockImplementation((name: string) => options[name] || '')
+      await main.run()
+
+      expect(execMock).toHaveBeenCalledWith(
+        [
+          'checkout',
+          '--depth',
+          'immediates',
+          `https://plugins.svn.wordpress.org/${options.slug}`,
+          `/tmp/svn/${options.slug}`
+        ],
+        expect.anything()
+      )
+
+      expect(fs.existsSync(`/tmp/svn/${options.slug}/assets`)).toBe(true)
 
       // svn update --set-depth infinity /tmp/svn/hello-dolly/assets
       expect(execMock).toHaveBeenCalledWith(
-        ['update', '--set-depth', 'infinity', '/tmp/svn/hello-dolly/assets'],
+        ['update', '--set-depth', 'infinity', `/tmp/svn/${options.slug}/assets`],
         expect.anything()
       )
 
       // rsync -r --checksum --delete --delete-excluded ./wordpress/.wordpress.org/ /tmp/svn/hello-dolly/assets/
       expect(rsyncMock).toHaveBeenCalledWith(
         `${workspace}/wordpress/.wordpress.org/`,
-        '/tmp/svn/hello-dolly/assets/',
+        `/tmp/svn/${options.slug}/assets/`,
         expect.anything()
       )
-    }
 
-    // preparePlugin
-    {
-      expect(existsSync('/tmp/svn/hello-dolly/trunk')).toBe(true)
+      expect(execMock).toHaveBeenCalledWith(['add', '--force', `/tmp/svn/${options.slug}`], expect.anything())
+
+      expect(execMock).toHaveBeenCalledWith(['status', `/tmp/svn/${options.slug}`], expect.anything())
 
       expect(execMock).toHaveBeenCalledWith(
-        ['update', '--set-depth', 'infinity', '/tmp/svn/hello-dolly/trunk'],
+        expect.arrayContaining(['commit', `/tmp/svn/${options.slug}`]),
         expect.anything()
       )
+    },
+    20 * 1000
+  )
 
-      expect(rsyncMock).toHaveBeenCalledWith(
-        `${workspace}/wordpress/build/`,
-        '/tmp/svn/hello-dolly/trunk/',
-        expect.anything()
-      )
-    }
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip(
+    'readme',
+    async () => {
+      options.mode = 'readme'
+      coreMock.getInput.mockImplementation((name: string) => options[name] || '')
+      await main.run()
 
-    expect(execMock).toHaveBeenCalledWith(['add', '--force', '/tmp/svn/hello-dolly'], expect.anything())
-
-    expect(execMock).toHaveBeenCalledWith(['status', '/tmp/svn/hello-dolly'], expect.anything())
-
-    // createNewTag
-    {
+      // svn update --set-depth infinity /tmp/svn/hello-dolly/trunk
       expect(execMock).toHaveBeenCalledWith(
-        ['copy', '/tmp/svn/hello-dolly/trunk', '/tmp/svn/hello-dolly/tags/0.0.0'],
+        ['update', '--set-depth', 'infinity', `/tmp/svn/${options.slug}/trunk`],
         expect.anything()
       )
 
-      expect(core.setOutput).toHaveBeenCalledWith('version', '0.0.0')
-    }
+      expect(copyFileSync).toHaveBeenCalledWith(
+        `${workspace}/${options['build-dir']}/${options['readme-name']}`,
+        expect.anything()
+      )
 
-    expect(execMock).toHaveBeenCalledWith(expect.arrayContaining(['commit', '/tmp/svn/hello-dolly']), expect.anything())
-  }, 1000000)
+      expect(execMock).toHaveBeenCalledWith(
+        expect.arrayContaining(['status', `/tmp/svn/${options.slug}`]),
+        expect.anything()
+      )
+
+      expect(execMock).toHaveBeenCalledWith(['add', '--force', `/tmp/svn/${options.slug}`], expect.anything())
+    },
+    20 * 1000
+  )
 })

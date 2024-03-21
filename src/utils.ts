@@ -3,7 +3,7 @@ import svn from './svn'
 import { readFileSync } from 'fs'
 import { last } from 'lodash'
 
-export const statusRegex = /^(?<status>[A-Z!])\s+(?<file>.*)$/
+export const statusRegex = /^(?<status>[A-Z!?~])\s+(?<file>.*)$/
 
 export const svnColorize = (text: string): string => {
   const colorMap: Record<string, typeof green> = {

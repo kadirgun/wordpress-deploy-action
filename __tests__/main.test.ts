@@ -44,7 +44,7 @@ describe('action', () => {
       mode: 'all',
       'assets-dir': '.wordpress.org',
       'build-dir': 'build',
-      'main-file': 'plugin.php'
+      'main-name': 'plugin.php'
     }
 
     infoMock = jest.spyOn(core, 'info').mockImplementation()
@@ -207,7 +207,7 @@ describe('action', () => {
     )
 
     expect(readVersionFromMainFileMock).toHaveBeenCalledWith(
-      `/tmp/svn/${options['slug']}/trunk/${options['main-file']}`
+      `/tmp/svn/${options['slug']}/trunk/${options['main-name']}`
     )
 
     expect(svnCopyMock).toHaveBeenCalledWith({
