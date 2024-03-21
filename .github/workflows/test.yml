@@ -16,7 +16,9 @@ jobs:
       - name: Test action
         uses: kadirgun/wordpress-deploy-action@main
         with:
-          slug: test-plugin
+          slug: akismet
           dry-run: true
           svn-username: test
           svn-password: test
+          build-dir: wordpress/build
+          assets-dir: wordpress/.wordpress.org

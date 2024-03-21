@@ -62,11 +62,11 @@ jobs:
         id: test-action
         uses: kadirgun/wordpress-deploy-action@main
         with:
-          slug: 'akismet'
+          slug: hello-dolly
           dry-run: true
           svn-password: test
           svn-username: test
-          build-dir: wordpress
+          build-dir: wordpress/build
           assets-dir: wordpress/.wordpress.org
 
       - name: Print Output

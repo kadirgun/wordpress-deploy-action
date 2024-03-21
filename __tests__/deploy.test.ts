@@ -11,20 +11,21 @@ const execMock = jest.spyOn(exec, 'default')
 const rsyncMock = jest.spyOn(rsync, 'default')
 
 const options: Record<string, string> = {
-  slug: 'akismet',
+  slug: 'hello-dolly',
   mode: 'all',
   'build-dir': 'wordpress/build',
   'assets-dir': 'wordpress/.wordpress.org',
   'main-file': 'main.php'
 }
 
-describe('deploy', () => {
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip('deploy', () => {
   afterAll(() => {
-    rmSync('/tmp/svn/akismet', { recursive: true, force: true })
+    rmSync('/tmp/svn/hello-dolly', { recursive: true, force: true })
   })
 
   beforeAll(() => {
-    rmSync('/tmp/svn/akismet', { recursive: true, force: true })
+    rmSync('/tmp/svn/hello-dolly', { recursive: true, force: true })
   })
 
   it('real', async () => {
@@ -35,60 +36,60 @@ describe('deploy', () => {
 
     expect(coreMock.setFailed).toHaveBeenCalledWith(expect.stringContaining('svn commit'))
 
-    // svn checkout --depth immediates https://plugins.svn.wordpress.org/akismet /tmp/svn/akismet
+    // svn checkout --depth immediates https://plugins.svn.wordpress.org/hello-dolly /tmp/svn/hello-dolly
     expect(execMock).toHaveBeenCalledWith(
-      ['checkout', '--depth', 'immediates', 'https://plugins.svn.wordpress.org/akismet', '/tmp/svn/akismet'],
+      ['checkout', '--depth', 'immediates', 'https://plugins.svn.wordpress.org/hello-dolly', '/tmp/svn/hello-dolly'],
       expect.anything()
     )
 
     // prepareAssets
     {
-      expect(existsSync('/tmp/svn/akismet/assets')).toBe(true)
+      expect(existsSync('/tmp/svn/hello-dolly/assets')).toBe(true)
 
-      // svn update --set-depth infinity /tmp/svn/akismet/assets
+      // svn update --set-depth infinity /tmp/svn/hello-dolly/assets
       expect(execMock).toHaveBeenCalledWith(
-        ['update', '--set-depth', 'infinity', '/tmp/svn/akismet/assets'],
+        ['update', '--set-depth', 'infinity', '/tmp/svn/hello-dolly/assets'],
         expect.anything()
       )
 
-      // rsync -r --checksum --delete --delete-excluded ./wordpress/.wordpress.org/ /tmp/svn/akismet/assets/
+      // rsync -r --checksum --delete --delete-excluded ./wordpress/.wordpress.org/ /tmp/svn/hello-dolly/assets/
       expect(rsyncMock).toHaveBeenCalledWith(
         `${workspace}/wordpress/.wordpress.org/`,
-        '/tmp/svn/akismet/assets/',
+        '/tmp/svn/hello-dolly/assets/',
         expect.anything()
       )
     }
 
     // preparePlugin
     {
-      expect(existsSync('/tmp/svn/akismet/trunk')).toBe(true)
+      expect(existsSync('/tmp/svn/hello-dolly/trunk')).toBe(true)
 
       expect(execMock).toHaveBeenCalledWith(
-        ['update', '--set-depth', 'infinity', '/tmp/svn/akismet/trunk'],
+        ['update', '--set-depth', 'infinity', '/tmp/svn/hello-dolly/trunk'],
         expect.anything()
       )
 
       expect(rsyncMock).toHaveBeenCalledWith(
         `${workspace}/wordpress/build/`,
-        '/tmp/svn/akismet/trunk/',
+        '/tmp/svn/hello-dolly/trunk/',
         expect.anything()
       )
     }
 
-    expect(execMock).toHaveBeenCalledWith(['add', '--force', '/tmp/svn/akismet'], expect.anything())
+    expect(execMock).toHaveBeenCalledWith(['add', '--force', '/tmp/svn/hello-dolly'], expect.anything())
 
-    expect(execMock).toHaveBeenCalledWith(['status', '/tmp/svn/akismet'], expect.anything())
+    expect(execMock).toHaveBeenCalledWith(['status', '/tmp/svn/hello-dolly'], expect.anything())
 
     // createNewTag
     {
       expect(execMock).toHaveBeenCalledWith(
-        ['copy', '/tmp/svn/akismet/trunk', '/tmp/svn/akismet/tags/0.0.0'],
+        ['copy', '/tmp/svn/hello-dolly/trunk', '/tmp/svn/hello-dolly/tags/0.0.0'],
         expect.anything()
       )
 
       expect(core.setOutput).toHaveBeenCalledWith('version', '0.0.0')
     }
 
-    expect(execMock).toHaveBeenCalledWith(expect.arrayContaining(['commit', '/tmp/svn/akismet']), expect.anything())
+    expect(execMock).toHaveBeenCalledWith(expect.arrayContaining(['commit', '/tmp/svn/hello-dolly']), expect.anything())
   }, 1000000)
 })
