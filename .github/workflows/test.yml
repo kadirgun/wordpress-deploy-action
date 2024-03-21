@@ -2,6 +2,17 @@ name: Test Deploy Action
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Deploy mode
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - assets
+          - plugin
+          - readme
 
 permissions:
   contents: write
@@ -16,6 +27,7 @@ jobs:
       - name: Test action
         uses: kadirgun/wordpress-deploy-action@main
         with:
+          mode: ${{ github.event.inputs.mode }}
           slug: akismet
           dry-run: true
           svn-username: test
