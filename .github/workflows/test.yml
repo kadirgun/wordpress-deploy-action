@@ -28,9 +28,11 @@ jobs:
         uses: kadirgun/wordpress-deploy-action@main
         with:
           mode: ${{ github.event.inputs.mode }}
-          slug: akismet
+          slug: hello-dolly
           dry-run: true
           svn-username: test
           svn-password: test
           build-dir: wordpress/build
           assets-dir: wordpress/.wordpress.org
+          readme-name: README.txt
+          main-name: main.php
