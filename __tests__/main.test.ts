@@ -17,6 +17,7 @@ let rsyncMock: jest.SpiedFunction<typeof rsync.default>
 // Mock the GitHub Actions core library
 let infoMock: jest.SpiedFunction<typeof core.info>
 let getInputMock: jest.SpiedFunction<typeof core.getInput>
+let setOutputMock: jest.SpiedFunction<typeof core.setOutput>
 let getBooleanInputMock: jest.SpiedFunction<typeof core.getBooleanInput>
 let setFailedMock: jest.SpiedFunction<typeof core.setFailed>
 let svnCheckoutMock: jest.SpiedFunction<typeof svn.checkout>
@@ -51,6 +52,8 @@ describe('action', () => {
     getBooleanInputMock = jest.spyOn(core, 'getBooleanInput').mockReturnValue(false)
 
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
+    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+
     prepareAssetsMock = jest.spyOn(main, 'prepareAssets')
     prepareReadmeMock = jest.spyOn(main, 'prepareReadme')
     preparePluginMock = jest.spyOn(main, 'preparePlugin')
@@ -132,6 +135,7 @@ describe('action', () => {
     expect(runMock).toHaveReturned()
     expect(setFailedMock).not.toHaveBeenCalled()
     expect(preparePluginMock).toHaveBeenCalled()
+    expect(setOutputMock).toHaveBeenCalled()
   })
 
   it('prepareAssets and preparePlugin run when mode is all', async () => {
