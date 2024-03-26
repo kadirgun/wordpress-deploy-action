@@ -45651,6 +45651,7 @@ const rsync_1 = __importDefault(__nccwpck_require__(4355));
 const fs_1 = __nccwpck_require__(7147);
 const glob = __importStar(__nccwpck_require__(6445));
 const utils_1 = __nccwpck_require__(442);
+const colorette_1 = __nccwpck_require__(2436);
 const options = {
     slug: '',
     mode: 'all',
@@ -45746,6 +45747,7 @@ async function run() {
             username,
             password
         });
+        core.info((0, colorette_1.green)(`Deployed to SVN revision ${revision}`));
     }
     catch (error) {
         if (error instanceof Error)

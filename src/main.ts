@@ -5,6 +5,7 @@ import rsync from './rsync'
 import { copyFileSync, existsSync } from 'fs'
 import * as glob from '@actions/glob'
 import { getRevisionNumber, mimeTypes, readVersionFromMainFile, removeMissingFiles } from './utils'
+import { green } from 'colorette'
 
 const options = {
   slug: '',
@@ -118,6 +119,8 @@ async function run(): Promise<void> {
       username,
       password
     })
+
+    core.info(green(`Deployed to SVN revision ${revision}`))
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }
