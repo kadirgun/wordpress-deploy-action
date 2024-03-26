@@ -139,9 +139,9 @@ describe('svn', () => {
         '--non-interactive',
         '--no-auth-cache',
         '--username',
-        'username',
+        "'username'",
         '--password',
-        'password',
+        "'password'",
         '-m',
         "'commit message'",
         '/path/to/commit'

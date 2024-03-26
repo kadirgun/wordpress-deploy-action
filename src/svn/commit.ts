@@ -16,11 +16,11 @@ async function commit(params: CommitParams): Promise<string[]> {
   }
 
   if (params.username) {
-    args.push('--username', params.username)
+    args.push('--username', `'${params.username}'`)
   }
 
   if (params.password) {
-    args.push('--password', params.password)
+    args.push('--password', `'${params.password}'`)
   }
 
   if (params.message) {

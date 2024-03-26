@@ -45944,10 +45944,10 @@ async function commit(params) {
         args.push('--no-auth-cache');
     }
     if (params.username) {
-        args.push('--username', params.username);
+        args.push('--username', `'${params.username}'`);
     }
     if (params.password) {
-        args.push('--password', params.password);
+        args.push('--password', `'${params.password}'`);
     }
     if (params.message) {
         args.push('-m', `'${params.message}'`);
