@@ -45742,7 +45742,7 @@ async function run() {
         const password = core.getInput('svn-password', { required: true });
         await svn_1.default.commit({
             path: options.svnDir,
-            message: `Deploy from kadirgun/wordpress-deploy-action mode ${options.mode}`,
+            message: `Deploy from GitHub action with ${options.mode} mode`,
             noAuthCache: true,
             username,
             password
