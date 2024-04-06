@@ -114,7 +114,7 @@ async function run(): Promise<void> {
 
     await svn.commit({
       path: options.svnDir,
-      message: `Deploy from kadirgun/wordpress-deploy-action mode ${options.mode}`,
+      message: `Deploy from GitHub action with ${options.mode} mode`,
       noAuthCache: true,
       username,
       password
