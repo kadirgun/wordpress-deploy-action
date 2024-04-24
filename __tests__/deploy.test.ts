@@ -87,12 +87,15 @@ describe('deploy', () => {
         )
       }
 
+      // svn add --force /tmp/svn/hello-dolly
       expect(execMock).toHaveBeenCalledWith(['add', '--force', `/tmp/svn/${options.slug}`], expect.anything())
 
+      // svn status /tmp/svn/hello-dolly
       expect(execMock).toHaveBeenCalledWith(['status', `/tmp/svn/${options.slug}`], expect.anything())
 
       // createNewTag
       {
+        // svn copy /tmp/svn/hello-dolly/trunk /tmp/svn/hello-dolly/tags/0.0.0
         expect(execMock).toHaveBeenCalledWith(
           ['copy', `/tmp/svn/${options.slug}/trunk`, `/tmp/svn/${options.slug}/tags/0.0.0`],
           expect.anything()
@@ -101,6 +104,7 @@ describe('deploy', () => {
         expect(core.setOutput).toHaveBeenCalledWith('version', '0.0.0')
       }
 
+      // svn commit --non-interactive /tmp/svn/hello-dolly
       expect(execMock).toHaveBeenCalledWith(
         expect.arrayContaining(['commit', `/tmp/svn/${options.slug}`]),
         expect.anything()
